@@ -54,4 +54,4 @@ uv run src/main.py
 
 The project runs several Flyte tasks with different configurations.
 
-The results are written to `output/result.txt`
+The results are written to `output/result.txt` and the logs are in the console

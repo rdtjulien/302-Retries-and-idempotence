@@ -15,7 +15,7 @@ async def data(idempotent):
     path = "data/healthcare_dataset.csv"
     df = pd.read_csv(path)
 
-    new_df = df.head()
+    new_df = df[["Name", "Age", "Gender"]].head(3)
 
     # Overwrite mode for idempotent tasks and append mode for non-idempotent tasks
     m = "a"
@@ -31,12 +31,14 @@ async def data(idempotent):
         # Simulate a task failure with a 50% chance
         if x == 0:
             print("Task fails")
-            f.write("Task fails\n")
+            f.write("Task fails\n\n\n")
             raise Exception("Task fails")
 
+        f.write("Task success\n")
         print("Task success")
 
 # Define Flyte tasks with different configuration
+# Source for flyte task https://www.union.ai/docs/v2/flyte/user-guide/tasks/task-configuration/retries-and-timeouts/
 @env.task
 async def no_policy():
     await data(False)
@@ -102,8 +104,9 @@ async def main():
         except Exception:
             pass
 
+        # https://www.geeksforgeeks.org/python/python-copy-contents-of-one-file-to-another-file/
         with open('output/logs.txt','r') as logs, open('output/result.txt','a') as result:
-            result.write(name)
+            result.write(f"\n===== {name} =====")
             result.write("\n\n")
             for line in logs:
                     result.write(line)
