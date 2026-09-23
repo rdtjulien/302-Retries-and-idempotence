@@ -2,9 +2,11 @@
 
 ## Description
 
-This repository is a demo to show the concepts of retries, backoff and idempotence when running Flyte task. To have a concrete exemple, the project use a synthetic healthcare dataset [`healthcare_dataset`](https://www.kaggle.com/datasets/prasad22/healthcare-dataset)
+This repository is a demo to show the concepts of retries, backoff and idempotence when running Flyte task. To have a concrete exemple, the project use a synthetic healthcare dataset [`healthcare_dataset`](https://www.kaggle.com/datasets/prasad22/healthcare-dataset).
 
-The demo intentionally introduces random task failures to observe how Flyte handles retries and how backoff affects the delay between retry attemps. It also demonstrates the difference between idempotent and non-idempotent.
+The dataset is only used to simulate a simple data-processing task. The task intentionally introduces random task failures to observe how Flyte handles retries and how backoff affects the delay between retry attempts. It also demonstrates the difference between idempotent and non-idempotent.
+
+To simulate idempotence, the task uses overwrite mode for idempotent operation and append mode for non-idempotent operations.
 
 ## Project structure
 ```
@@ -54,4 +56,4 @@ uv run src/main.py
 
 The project runs several Flyte tasks with different configurations.
 
-The results are written to `output/result.txt` and the logs are in the console
+The results are written to `output/result.txt` and the logs are in the console.
