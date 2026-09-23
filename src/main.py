@@ -17,12 +17,7 @@ async def data(idempotent):
     path = "data/healthcare_dataset.csv"
     df = pd.read_csv(path)
 
-    cancer_count = (df["Medical Condition"].str.lower() == "cancer").sum()
-
-    # Overwrite mode for idempotent tasks and append mode for non-idempotent tasks
-    m = "a"
-    if idempotent:
-        m = "w"
+    cancer_count = (df["Medical Condition"] == "Cancer").sum()
 
     # Read previous count only if this is a retry
     total_cancer_count = cancer_count
@@ -36,27 +31,23 @@ async def data(idempotent):
     with open("output/cancer_count.txt", "w") as count_file:
         count_file.write(str(total_cancer_count))
 
-    with open("output/logs.txt", m) as f:
 
-        now = datetime.now()
-        if last_time:
-            print(f"retry: {(now - last_time).total_seconds():.1f}s")
-            f.write(f"retry: {(now - last_time).total_seconds():.1f}s\n\n")
+    now = datetime.now()
+    if last_time:
+        print(f"retry: {(now - last_time).total_seconds():.1f}s")
 
-        last_time = now
 
-        f.write(f"Cancer count: {total_cancer_count}\n")
+    last_time = now
 
-        x = random.randint(0, 1)
+    x = random.randint(0, 1)
 
-        # Simulate a task failure with a 50% chance
-        if x == 0:
-            print("Task fails")
-            f.write("Task fails\n")
-            raise Exception("Task fails")
+    # Simulate a task failure with a 50% chance
+    if x == 0:
+        print("Task fails")
+        raise Exception("Task fails")
 
-        f.write("Task success\n")
-        print("Task success")
+    print("Task success")
+    print(f"Cancer count: {total_cancer_count}")
 
 # Define Flyte tasks with different configuration
 # Source for flyte task https://www.union.ai/docs/v2/flyte/user-guide/tasks/task-configuration/retries-and-timeouts/
@@ -90,7 +81,6 @@ async def policy_idempotent_backoff():
 @env.task
 async def main():
     global last_time
-    open("output/result.txt", "w").close()
 
     for t in [no_retry,retry,policy_idempotent_backoff]:
         name = t.name.split(".")[-1]
@@ -101,17 +91,6 @@ async def main():
             await t()
         except Exception:
             pass
-
-        # https://www.geeksforgeeks.org/python/python-copy-contents-of-one-file-to-another-file/
-        with open('output/logs.txt','r') as logs, open('output/result.txt','a') as result:
-            result.write(f"\n===== {name} =====")
-            result.write("\n\n")
-            for line in logs:
-                    result.write(line)
-            result.write("\n\n\n\n")
-
-        open("output/logs.txt", "w").close()
-
 
 if __name__ == "__main__":
     # Hide flyte log
